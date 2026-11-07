@@ -122,12 +122,12 @@ app. GitHub Pages does not create the AWS API, Cognito pool, or private storage.
    sign-out URLs default to the repository's GitHub Pages URL; allow those
    exact URLs in Cognito. The GitHub Actions workflow deploys on each push to
    `main`.
-5. In Android Studio, open the repository's `android` project. For each new
-   version, increment `versionCode` and update `versionName` in
-   `android/app/build.gradle`. Choose **Build → Generate Signed Bundle / APK**,
-   select **APK**, and create or select your Android signing key. Keep the key
-   and passwords private and make a secure backup; every update must use the
-   same signing key.
+5. In Android Studio, open the repository's `android` project. Keep the APK's
+   `versionName` aligned with `package.json` and the GitHub tag (the initial
+   version is `0.1.0` / `v0.1.0`); increment `versionCode` for every update.
+   Choose **Build → Generate Signed Bundle / APK**, select **APK**, and create
+   or select your Android signing key. Keep the key and passwords private and
+   make a secure backup; every update must use the same signing key.
 6. Test the generated signed APK on an Android device. On GitHub, create a
    Release with a version tag such as `v1.0.0` and attach the APK. Publish the
    Release; the website's `/releases` page will list its version and download.
