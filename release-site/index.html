@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#153d2e" />
+    <meta
+      name="description"
+      content="Official MilkTrack Android app releases and version updates."
+    />
+    <title>MilkTrack Downloads</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/releases.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="MilkTrack downloads home">
+        <span class="brand-mark" aria-hidden="true">M</span>
+        <span>MilkTrack <small>DOWNLOADS</small></span>
+      </a>
+      <span class="secure-label"><span></span> Official releases</span>
+    </header>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DODLA MILK COLLECTION MANAGER</p>
+        <h1>MilkTrack, kept up to date.</h1>
+        <p>
+          Download the Android app and find version-by-version release notes.
+          Install a newer release over your existing app to update it.
+        </p>
+      </section>
+      <section class="releases" aria-labelledby="release-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">VERSION HISTORY</p>
+            <h2 id="release-title">App releases</h2>
+          </div>
+          <span id="release-count" class="count">Loading releases…</span>
+        </div>
+        <div id="release-list" class="release-list" aria-live="polite">
+          <p class="loading">Loading published versions…</p>
+        </div>
+      </section>
+      <aside class="install-note">
+        <strong>Updating the Android app</strong>
+        <p>
+          Android accepts an update only when it is signed with the same
+          developer key as the installed app. Keep that signing key backed up.
+          Depending on your device settings, Android may ask you to allow
+          installation from your browser.
+        </p>
+      </aside>
+    </main>
+    <footer>
+      <span>MilkTrack</span>
+      <span>Only download releases you trust.</span>
+    </footer>
+  </body>
+</html>

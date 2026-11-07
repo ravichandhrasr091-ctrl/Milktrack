@@ -1,0 +1,265 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #193329;
+  background: #f5f8f5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 86% 6%, rgb(217 240 226 / 60%), transparent 28rem),
+    #f5f8f5;
+}
+
+.site-header {
+  display: flex;
+  height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 max(22px, calc((100% - 1040px) / 2));
+  border-bottom: 1px solid #e6ece7;
+  background: rgb(255 255 255 / 90%);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #153d2e;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand small {
+  display: block;
+  margin-top: 2px;
+  color: #86968c;
+  font-size: 8px;
+  letter-spacing: 1.15px;
+}
+
+.brand-mark {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 11px;
+  background: #153d2e;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.secure-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #65806d;
+  font-size: 11px;
+}
+
+.secure-label span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #5da476;
+}
+
+main {
+  width: min(100% - 36px, 880px);
+  margin: 0 auto;
+  padding: 65px 0 56px;
+}
+
+.hero {
+  max-width: 670px;
+  padding: 0 0 40px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #6a8b74;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+h1 {
+  margin: 13px 0 12px;
+  color: #153d2e;
+  font-size: clamp(32px, 6vw, 49px);
+  font-weight: 600;
+  letter-spacing: -2px;
+  line-height: 1.08;
+}
+
+.hero > p:last-child {
+  max-width: 590px;
+  margin: 0;
+  color: #728078;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.releases {
+  padding: 24px;
+  border: 1px solid #e5ece6;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 5px 25px rgb(26 55 39 / 4%);
+}
+
+.section-heading,
+.release-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.section-heading h2 {
+  margin: 6px 0 0;
+  color: #1d382b;
+  font-size: 19px;
+  letter-spacing: -0.5px;
+}
+
+.count {
+  color: #849188;
+  font-size: 11px;
+}
+
+.release-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.empty-state {
+  padding: 32px 18px;
+  border: 1px dashed #dfe8e1;
+  border-radius: 13px;
+  background: #fbfcfb;
+  text-align: center;
+}
+
+.empty-state h3 {
+  margin: 0;
+  color: #42584a;
+  font-size: 14px;
+}
+
+.empty-state p {
+  max-width: 430px;
+  margin: 8px auto 0;
+  color: #849188;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.release-card {
+  padding: 18px;
+  border: 1px solid #e8eee9;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.release-heading h3 {
+  margin: 0;
+  color: #284335;
+  font-size: 15px;
+}
+
+.latest-badge {
+  padding: 5px 8px;
+  border-radius: 20px;
+  background: #e9f4ec;
+  color: #487454;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.release-date {
+  margin: 7px 0;
+  color: #849188;
+  font-size: 10px;
+}
+
+.release-notes {
+  color: #64746a;
+  font-size: 12px;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.download-button {
+  display: inline-flex;
+  min-height: 39px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+  padding: 0 13px;
+  border-radius: 9px;
+  background: #153d2e;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.download-button:hover { background: #1c513a; }
+
+.loading,
+.error-state {
+  padding: 23px 10px;
+  color: #78877e;
+  font-size: 12px;
+  text-align: center;
+}
+
+.error-state { color: #a33e36; }
+
+.install-note {
+  margin-top: 17px;
+  padding: 17px 19px;
+  border: 1px solid #e3ebe5;
+  border-radius: 13px;
+  background: #eef5ef;
+}
+
+.install-note strong {
+  color: #355542;
+  font-size: 11px;
+}
+
+.install-note p {
+  margin: 6px 0 0;
+  color: #6f8075;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px max(22px, calc((100% - 880px) / 2));
+  border-top: 1px solid #e6ece7;
+  color: #87948c;
+  font-size: 10px;
+}
+
+@media (max-width: 560px) {
+  .site-header { height: 62px; }
+  main { padding-top: 42px; }
+  .hero { padding-bottom: 28px; }
+  .releases { padding: 17px; }
+  footer { flex-direction: column; gap: 5px; }
+}

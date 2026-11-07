@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+backend/node_modules/
+backend/.aws-sam/
+release-output/
+electron/desktop-config.json
+*.jks
+*.keystore
+*.tsbuildinfo
+receipt-ocr-test.jpg
+release-site-dist/
+android/local.properties

@@ -1,0 +1,20 @@
+:root {
+  font-family: 'Inter', sans-serif;
+  color: #183229;
+  background: #f5f8f5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --forest: #153d2e;
+  --forest-deep: #103426;
+  --forest-soft: #e6f2e9;
+  --mint: #d9f0e2;
+  --mint-light: #edf7f0;
+  --background: #f5f8f5;
+  --white: #fff;
+  --text: #183229;
+  --muted: #74837b;
+  --line: #e7ece8;
+  --card-shadow: 0 3px 14px rgb(26 55 39 / 3%);
+  --radius-card: 18px;
+}

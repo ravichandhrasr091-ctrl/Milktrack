@@ -1,0 +1,81 @@
+name: Deploy MilkTrack website
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Configure GitHub Pages and app settings
+        env:
+          VITE_COGNITO_DOMAIN: ${{ vars.VITE_COGNITO_DOMAIN }}
+          VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+          VITE_COGNITO_REDIRECT_URI: ${{ vars.VITE_COGNITO_REDIRECT_URI }}
+          VITE_COGNITO_LOGOUT_URI: ${{ vars.VITE_COGNITO_LOGOUT_URI }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+        run: |
+          repo="${GITHUB_REPOSITORY#*/}"
+          if [ "$repo" = "${GITHUB_REPOSITORY_OWNER}.github.io" ]; then
+            base="/"
+          else
+            base="/${repo}/"
+          fi
+          site="https://${GITHUB_REPOSITORY_OWNER}.github.io${base}"
+          echo "VITE_BASE_PATH=${base}" >> "$GITHUB_ENV"
+          echo "VITE_GITHUB_REPOSITORY=${GITHUB_REPOSITORY}" >> "$GITHUB_ENV"
+          if [ -n "$VITE_COGNITO_DOMAIN" ]; then
+            echo "VITE_COGNITO_DOMAIN=${VITE_COGNITO_DOMAIN}" >> "$GITHUB_ENV"
+          fi
+          if [ -n "$VITE_COGNITO_CLIENT_ID" ]; then
+            echo "VITE_COGNITO_CLIENT_ID=${VITE_COGNITO_CLIENT_ID}" >> "$GITHUB_ENV"
+          fi
+          if [ -n "$VITE_COGNITO_REDIRECT_URI" ]; then
+            echo "VITE_COGNITO_REDIRECT_URI=${VITE_COGNITO_REDIRECT_URI}" >> "$GITHUB_ENV"
+          else
+            echo "VITE_COGNITO_REDIRECT_URI=${site}auth/callback" >> "$GITHUB_ENV"
+          fi
+          if [ -n "$VITE_COGNITO_LOGOUT_URI" ]; then
+            echo "VITE_COGNITO_LOGOUT_URI=${VITE_COGNITO_LOGOUT_URI}" >> "$GITHUB_ENV"
+          else
+            echo "VITE_COGNITO_LOGOUT_URI=${site}" >> "$GITHUB_ENV"
+          fi
+          if [ -n "$VITE_API_BASE_URL" ]; then
+            echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> "$GITHUB_ENV"
+          fi
+      - run: npm ci
+      - run: npm test -- --maxWorkers=1
+      - run: npm run build
+      - name: Add GitHub Pages SPA fallback
+        run: cp dist/index.html dist/404.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

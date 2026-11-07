@@ -1,0 +1,181 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: User-scoped MilkTrack receipt API and private photo storage.
+
+Parameters:
+  CognitoUserPoolId:
+    Type: String
+    Description: Existing Cognito user pool ID in this stack's AWS Region.
+  CognitoAppClientId:
+    Type: String
+    Description: Public Cognito SPA app client ID.
+  AppOrigin:
+    Type: String
+    Description: Exact HTTPS origin of the production Amplify app.
+    AllowedPattern: '^https://[a-zA-Z0-9.-]+$'
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Timeout: 15
+    MemorySize: 256
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        RECEIPTS_TABLE: !Ref ReceiptsTable
+        RECEIPT_IMAGES_BUCKET: !Ref ReceiptImagesBucket
+
+Resources:
+  ReceiptsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: id
+          KeyType: RANGE
+
+  ReceiptImagesBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - !Ref AppOrigin
+            AllowedMethods:
+              - GET
+              - POST
+            AllowedHeaders:
+              - Content-Type
+            MaxAge: 300
+      LifecycleConfiguration:
+        Rules:
+          - Id: AbortIncompleteMultipartUploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+
+  ReceiptImagesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ReceiptImagesBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: RequireTLS
+            Effect: Deny
+            Principal: '*'
+            Action: s3:*
+            Resource:
+              - !GetAtt ReceiptImagesBucket.Arn
+              - !Sub '${ReceiptImagesBucket.Arn}/*'
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref AppOrigin
+        AllowHeaders:
+          - authorization
+          - content-type
+        AllowMethods:
+          - GET
+          - POST
+        MaxAge: 300
+      Auth:
+        DefaultAuthorizer: CognitoJwtAuthorizer
+        Authorizers:
+          CognitoJwtAuthorizer:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer: !Sub 'https://cognito-idp.${AWS::Region}.amazonaws.com/${CognitoUserPoolId}'
+              audience:
+                - !Ref CognitoAppClientId
+
+  ReceiptsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+          - src/handler.mjs
+        Format: esm
+        Target: es2022
+        Sourcemap: true
+    Properties:
+      CodeUri: ./
+      Handler: handler.handler
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:Query
+              Resource: !GetAtt ReceiptsTable.Arn
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: !Sub '${ReceiptImagesBucket.Arn}/*'
+      Events:
+        ListReceipts:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /receipts
+            Method: GET
+        UploadReceiptImage:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /receipts/{receiptId}/image-upload
+            Method: POST
+        SaveReceipt:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /receipts
+            Method: POST
+        DownloadReceiptImage:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /receipts/{receiptId}/image-download
+            Method: GET
+
+Outputs:
+  ApiBaseUrl:
+    Description: Set VITE_API_BASE_URL to this URL for the Vite/Amplify build.
+    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/'
+  ReceiptImagesBucketName:
+    Description: Private bucket for verified receipt photos.
+    Value: !Ref ReceiptImagesBucket

@@ -1,0 +1,79 @@
+{
+  "name": "milktrack",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "prepare:ocr": "node scripts/prepare-ocr-assets.mjs",
+    "predev": "npm run prepare:ocr",
+    "dev": "vite",
+    "prebuild": "npm run prepare:ocr",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "android:sync": "npm run build && cap sync android",
+    "android:open": "cap open android",
+    "android:debug": "npm run build && cap sync android && cd android && gradlew.bat assembleDebug",
+    "desktop:build": "npm run build && node scripts/configure-desktop-site.mjs && electron-builder --win nsis",
+    "test": "vitest run",
+    "dev:releases": "vite --config release-site/vite.config.ts --host 127.0.0.1",
+    "build:releases": "vite build --config release-site/vite.config.ts"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@fontsource/inter": "^5.2.6",
+    "@tesseract.js-data/eng": "^1.0.0",
+    "dexie": "^4.4.7",
+    "fflate": "^0.8.3",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.1",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1162.0",
+    "@capacitor/cli": "^8.6.0",
+    "@types/react": "^19.0.3",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0",
+    "fake-indexeddb": "^6.2.7",
+    "typescript": "~5.7.2",
+    "vite": "^6.4.5",
+    "vitest": "^4.1.12"
+  },
+  "overrides": {
+    "app-builder-lib": {
+      "minimatch": "^11.0.1",
+      "@electron/universal": {
+        "minimatch": "^11.0.5",
+        "dir-compare": {
+          "minimatch": "^3.1.5"
+        }
+      }
+    }
+  },
+  "build": {
+    "appId": "com.milktrack.desktop",
+    "productName": "MilkTrack",
+    "directories": {
+      "output": "release-output"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "MilkTrack-${version}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
