@@ -76,11 +76,11 @@ export default function Releases() {
           <span className="releases-hero-icon">
             <ArrowDownToLine size={22} aria-hidden="true" />
           </span>
-          <p className="site-eyebrow">OFFICIAL APP DOWNLOADS</p>
+          <p className="site-eyebrow">ANDROID APK DOWNLOADS</p>
           <h1>MilkTrack app releases</h1>
           <p>
-            Version history and downloads for each published Android APK and
-            Windows installer.
+            Version history, release notes, and downloads for published Android
+            APKs.
           </p>
         </section>
 
@@ -145,16 +145,6 @@ export default function Releases() {
                           Android APK
                         </a>
                       )}
-                      {release.windowsInstaller && (
-                        <a
-                          className="release-download release-download-secondary"
-                          href={release.windowsInstaller}
-                          aria-label={`Download MilkTrack v${release.version} Windows installer`}
-                        >
-                          <ArrowDownToLine size={16} aria-hidden="true" />
-                          Windows installer
-                        </a>
-                      )}
                     </div>
                   </article>
                 ))}
@@ -177,7 +167,7 @@ export default function Releases() {
 
       <footer className="public-footer">
         <Link className="public-footer-brand" to="/">MilkTrack</Link>
-        <span>Download only official releases.</span>
+        <span>Android APK downloads are provided through GitHub Releases.</span>
         <Link to="/">Website home</Link>
       </footer>
     </div>
