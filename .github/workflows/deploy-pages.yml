@@ -33,7 +33,6 @@ jobs:
           VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
           VITE_COGNITO_REDIRECT_URI: ${{ vars.VITE_COGNITO_REDIRECT_URI }}
           VITE_COGNITO_LOGOUT_URI: ${{ vars.VITE_COGNITO_LOGOUT_URI }}
-          VITE_API_BASE_URL: https://97fqs6d0sh.execute-api.ap-southeast-2.amazonaws.com/
         run: |
           repo="${GITHUB_REPOSITORY#*/}"
           if [ "$repo" = "${GITHUB_REPOSITORY_OWNER}.github.io" ]; then
@@ -60,12 +59,11 @@ jobs:
           else
             echo "VITE_COGNITO_LOGOUT_URI=${site}" >> "$GITHUB_ENV"
           fi
-          if [ -n "$VITE_API_BASE_URL" ]; then
-            echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> "$GITHUB_ENV"
-          fi
       - run: npm ci
       - run: npm test -- --maxWorkers=1
       - run: npm run build
+        env:
+          VITE_API_BASE_URL: https://97fqs6d0sh.execute-api.ap-southeast-2.amazonaws.com/
       - name: Add GitHub Pages SPA fallback
         run: cp dist/index.html dist/404.html
       - uses: actions/upload-pages-artifact@v3
