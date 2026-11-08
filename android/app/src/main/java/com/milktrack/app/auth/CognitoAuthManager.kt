@@ -150,6 +150,6 @@ internal class CognitoAuthManager(context: Context) {
     }
 
     private companion object {
-        val REDIRECT_URI: Uri = Uri.parse("com.milktrack.app:/oauth2redirect")
+        val REDIRECT_URI: Uri = Uri.parse("com.milktrack.app://oauth2redirect")
     }
 }
