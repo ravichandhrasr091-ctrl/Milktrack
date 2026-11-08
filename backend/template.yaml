@@ -127,7 +127,7 @@ Resources:
       BuildProperties:
         EntryPoints:
           - src/handler.mjs
-        Format: esm
+        Format: cjs
         Target: es2022
         Sourcemap: true
     Properties:
