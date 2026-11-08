@@ -3,6 +3,8 @@ package com.milktrack.app.auth
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Base64
+import org.json.JSONObject
 import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationRequest
@@ -62,6 +64,11 @@ internal class CognitoAuthManager(context: Context) {
         return getFreshIdToken(state)
     }
 
+    suspend fun getCurrentUserId(): String = getClaim("sub")
+
+    suspend fun getCurrentEmail(): String? =
+        runCatching { getClaim("email") }.getOrNull()
+
     suspend fun completeSignIn(response: AuthorizationResponse): String {
         val state = AuthState().apply { update(response, null) }
         return suspendCancellableCoroutine { continuation ->
@@ -119,15 +126,27 @@ internal class CognitoAuthManager(context: Context) {
                     )
                     return@performActionWithFreshTokens
                 }
-
                 try {
                     store.write(state)
-                    continuation.resume(idToken)
+                    continuation.resume(requireNotNull(idToken))
                 } catch (error: Exception) {
                     continuation.resumeWithException(error)
                 }
             }
         }
+
+    private suspend fun getClaim(name: String): String {
+        val token = getCurrentIdToken()
+        val payload = token.split('.').getOrNull(1)
+            ?: throw IllegalStateException("The saved sign-in token is invalid.")
+        val decoded = try {
+            String(Base64.decode(payload, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING))
+        } catch (error: IllegalArgumentException) {
+            throw IllegalStateException("The saved sign-in token is invalid.", error)
+        }
+        return JSONObject(decoded).optString(name).takeIf(String::isNotBlank)
+            ?: throw IllegalStateException("The signed-in account is missing its $name claim.")
+    }
 
     private fun getServiceConfiguration(): AuthorizationServiceConfiguration {
         check(isHttpsDomain(domain)) {

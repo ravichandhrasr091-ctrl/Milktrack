@@ -25,6 +25,12 @@ internal data class NativeReceipt(
     val totalAmount: String,
     val originalFilename: String,
     val originalMimeType: String,
+    val entryMethod: String = "upload",
+    val ocrRawText: String = "",
+    val supplierCode: String? = null,
+    val mccCode: String? = null,
+    val vlccCode: String? = null,
+    val verificationTimestamp: String? = null,
 )
 
 internal data class AssistantMessage(
@@ -122,8 +128,41 @@ internal object NativeReceiptApi {
             .put("createdAt", now)
             .put("updatedAt", now)
             .put("entryMethod", entryMethod)
+        receipt.supplierCode?.let { record.put("supplierCode", it) }
+        receipt.mccCode?.let { record.put("mccCode", it) }
+        receipt.vlccCode?.let { record.put("vlccCode", it) }
         apiRequest("POST", "receipts", idToken, record)
     }
+
+    suspend fun downloadReceiptImage(idToken: String, receiptId: String): ByteArray =
+        withContext(Dispatchers.IO) {
+            val result = apiRequest("GET", "receipts/$receiptId/image-download", idToken)
+            val downloadUrl = result.optString("downloadUrl")
+            require(downloadUrl.startsWith("https://")) {
+                "The cloud API did not provide a secure receipt image URL."
+            }
+            val connection = URL(downloadUrl).openConnection() as HttpURLConnection
+            try {
+                connection.connectTimeout = REQUEST_TIMEOUT_MS
+                connection.readTimeout = REQUEST_TIMEOUT_MS
+                val status = connection.responseCode
+                require(status in 200..299) {
+                    "The original receipt photo could not be downloaded (HTTP $status)."
+                }
+                require(connection.contentLengthLong in 1..MAX_IMAGE_BYTES.toLong()) {
+                    "The receipt photo is empty or larger than 10 MB."
+                }
+                connection.inputStream.use { input ->
+                    val bytes = input.readBounded(MAX_IMAGE_BYTES)
+                    require(bytes.isNotEmpty()) {
+                        "The receipt photo is empty or larger than 10 MB."
+                    }
+                    bytes
+                }
+            } finally {
+                connection.disconnect()
+            }
+        }
 
     suspend fun askAssistant(
         idToken: String,
@@ -240,6 +279,20 @@ internal object NativeReceiptApi {
         output.write("\r\n".toByteArray(StandardCharsets.UTF_8))
     }
 
+    private fun java.io.InputStream.readBounded(maxBytes: Int): ByteArray {
+        val output = ByteArrayOutputStream()
+        val buffer = ByteArray(8 * 1024)
+        while (true) {
+            val count = read(buffer)
+            if (count < 0) break
+            require(output.size() + count <= maxBytes) {
+                "The receipt photo is empty or larger than 10 MB."
+            }
+            output.write(buffer, 0, count)
+        }
+        return output.toByteArray()
+    }
+
     private fun parseReceipt(value: JSONObject) = NativeReceipt(
         id = value.getString("id"),
         receiptDate = value.getString("receiptDate"),
@@ -253,6 +306,13 @@ internal object NativeReceiptApi {
         totalAmount = value.getString("totalAmount"),
         originalFilename = value.getString("originalFilename"),
         originalMimeType = value.getString("originalMimeType"),
+        entryMethod = value.optString("entryMethod", "upload"),
+        ocrRawText = value.optString("ocrRawText", ""),
+        supplierCode = value.optString("supplierCode").takeIf { it.isNotBlank() },
+        mccCode = value.optString("mccCode").takeIf { it.isNotBlank() },
+        vlccCode = value.optString("vlccCode").takeIf { it.isNotBlank() },
+        verificationTimestamp = value.optString("verificationTimestamp")
+            .takeIf { it.isNotBlank() },
     )
 
     private fun buildAssistantContext(receipts: List<NativeReceipt>): JSONObject {
