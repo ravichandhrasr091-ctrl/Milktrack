@@ -172,6 +172,12 @@ Resources:
             Path: /receipts/{receiptId}/image-download
             Method: GET
 
+  ReceiptsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ReceiptsFunction}'
+      RetentionInDays: 30
+
 Outputs:
   ApiBaseUrl:
     Description: Set VITE_API_BASE_URL to this URL for the Vite/Amplify build.
