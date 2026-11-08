@@ -117,11 +117,12 @@ app. GitHub Pages does not create the AWS API, Cognito pool, or private storage.
 3. In repository **Settings → Pages**, choose **GitHub Actions** as the build
    and deployment source.
 4. In **Settings → Secrets and variables → Actions → Variables**, add the
-   public build values `VITE_COGNITO_DOMAIN`, `VITE_COGNITO_CLIENT_ID`, and,
-   after the backend is deployed, `VITE_API_BASE_URL`. The callback and
-   sign-out URLs default to the repository's GitHub Pages URL; allow those
-   exact URLs in Cognito. The GitHub Actions workflow deploys on each push to
-   `main`.
+   public build values `VITE_COGNITO_DOMAIN` and `VITE_COGNITO_CLIENT_ID`.
+   The production API URL is configured directly in
+   `.github/workflows/deploy-pages.yml`; update it there if the backend URL
+   changes. The callback and sign-out URLs default to the repository's GitHub
+   Pages URL; allow those exact URLs in Cognito. The GitHub Actions workflow
+   deploys on each push to `main`.
 5. In Android Studio, open the repository's `android` project. Keep the APK's
    `versionName` aligned with `package.json` and the GitHub tag (the initial
    version is `0.1.0` / `v0.1.0`); increment `versionCode` for every update.

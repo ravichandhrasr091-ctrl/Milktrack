@@ -33,7 +33,7 @@ jobs:
           VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
           VITE_COGNITO_REDIRECT_URI: ${{ vars.VITE_COGNITO_REDIRECT_URI }}
           VITE_COGNITO_LOGOUT_URI: ${{ vars.VITE_COGNITO_LOGOUT_URI }}
-          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_API_BASE_URL: https://97fqs6d0sh.execute-api.ap-southeast-2.amazonaws.com/
         run: |
           repo="${GITHUB_REPOSITORY#*/}"
           if [ "$repo" = "${GITHUB_REPOSITORY_OWNER}.github.io" ]; then
