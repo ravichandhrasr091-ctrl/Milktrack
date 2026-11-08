@@ -11,17 +11,13 @@
     "prebuild": "npm run prepare:ocr",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "android:sync": "npm run build && cap sync android",
-    "android:open": "cap open android",
-    "android:debug": "npm run build && cap sync android && cd android && gradlew.bat assembleDebug",
+    "android:debug": "cd android && gradlew.bat assembleDebug",
     "desktop:build": "npm run build && node scripts/configure-desktop-site.mjs && electron-builder --win nsis",
     "test": "vitest run",
     "dev:releases": "vite --config release-site/vite.config.ts --host 127.0.0.1",
     "build:releases": "vite build --config release-site/vite.config.ts"
   },
   "dependencies": {
-    "@capacitor/android": "^8.6.0",
-    "@capacitor/core": "^8.6.0",
     "@fontsource/inter": "^5.2.6",
     "@tesseract.js-data/eng": "^1.0.0",
     "dexie": "^4.4.7",
@@ -34,7 +30,6 @@
   },
   "devDependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1162.0",
-    "@capacitor/cli": "^8.6.0",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^4.3.4",

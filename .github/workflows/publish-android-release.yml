@@ -1,0 +1,43 @@
+name: Publish MilkTrack Android release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate release asset
+        id: release
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]]; then
+            echo "Tag must use a version such as v0.2.0." >&2
+            exit 1
+          fi
+          apk="release-assets/MilkTrack-${version}-Android.apk"
+          if [[ ! -s "$apk" ]]; then
+            echo "Expected signed APK not found: $apk" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "apk=$apk" >> "$GITHUB_OUTPUT"
+      - name: Publish APK to GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            "${{ steps.release.outputs.apk }}" \
+            --title "MilkTrack v${{ steps.release.outputs.version }}" \
+            --notes "Native Android app release. Download the signed APK from the MilkTrack website."

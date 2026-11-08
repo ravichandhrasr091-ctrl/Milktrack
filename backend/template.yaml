@@ -25,6 +25,7 @@ Globals:
       Variables:
         RECEIPTS_TABLE: !Ref ReceiptsTable
         RECEIPT_IMAGES_BUCKET: !Ref ReceiptImagesBucket
+        BEDROCK_MODEL_ID: amazon.nova-lite-v1:0
 
 Resources:
   ReceiptsTable:
@@ -146,7 +147,17 @@ Resources:
                 - s3:GetObject
                 - s3:PutObject
               Resource: !Sub '${ReceiptImagesBucket.Arn}/*'
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: !Sub 'arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/amazon.nova-lite-v1:0'
       Events:
+        Assistant:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /assistant
+            Method: POST
         ListReceipts:
           Type: HttpApi
           Properties:

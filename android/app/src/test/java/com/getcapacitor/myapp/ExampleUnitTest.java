@@ -1,4 +1,4 @@
-package com.getcapacitor.myapp;
+package com.milktrack.app;
 
 import static org.junit.Assert.*;
 
